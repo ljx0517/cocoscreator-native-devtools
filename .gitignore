@@ -1,0 +1,11 @@
+node_modules/
+dist/
+esdoc/
+
+*.
+*.log
+*.map
+*.d.ts
+package-lock.json
+src/assets/*.js
+!.gitignore

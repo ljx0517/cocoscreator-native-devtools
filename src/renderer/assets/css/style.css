@@ -1,0 +1,194 @@
+body {
+    cursor: default;
+    color: #888;
+
+    display: -webkit-flex;
+    display: flex;
+
+    -webkit-flex-direction: column;
+    flex-direction: column;
+
+    height: 100%;    /* for firefox */
+    width: 100%;
+
+    position: absolute;
+    padding: 0px;
+    border: 0px;
+    margin: 0px;
+}
+
+/* Remove spin of input type number */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    /*-webkit-appearance: none;*/
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+body, canvas, div {
+    outline: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.v-application .primary {
+    background-color: #1867c0 !important;
+    border-color: #1867c0 !important;
+}
+.v-application .error {
+    background-color: #ff5252 !important;
+    border-color: #ff5252 !important;
+}
+.toolbar{
+    display: flex;
+    margin: 12px;
+}
+.toolbar .item{
+    margin-right: 12px;
+}
+.toolbar .v-btn__content{
+    color: #333;
+}
+.main{
+    margin-top: 12px;
+}
+.comp-attr-ref{
+    display: flex;
+}
+.connect-page{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.ip-addr{
+    width: 400px;
+    height: 300px;
+}
+
+
+/* ********************************************************************* */
+.hbox{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+.attrs-view .v-color-picker__controls {
+    padding: 0;
+    flex-direction: column;
+}
+.attrs-view .v-color-picker__edit{
+    margin: 0;
+}
+.attrs-view  .v-color-picker__sliders{
+    margin-left: 12px;
+}
+.attrs-view .v-color-picker__input {
+    font-size: 12px;
+}
+.attrs-view{
+    min-width: 300px;
+}
+.attrs-table{
+    position: relative;
+    box-sizing: border-box;
+    outline: 0;
+    width: 100%;
+    padding-bottom: 4px;
+    margin: 5px 0;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    color: #bdbdbd;
+    font-weight: 700;
+    /*border-bottom: 1px solid #666;*/
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+.attrs-table .head{
+    position: relative;
+    box-sizing: border-box;
+    outline: 0;
+    width: 100%;
+    padding-bottom: 4px;
+    margin: 5px 0;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    color: #bdbdbd;
+    font-weight: 700;
+    border-bottom: 1px solid #666;
+}
+.attrs-table .hbox{
+    width: 100%;
+    /*min-height: 23px;*/
+    /*max-height: 23px;*/
+    margin: 2px 0;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    color: #bdbdbd;
+}
+.attrs-table .v-color-picker__canvas{
+}
+.attrs-table .label{
+    align-items: baseline;
+    justify-content: flex-start;
+    margin-right: 5px;
+    flex-shrink: 0;
+    font-size: 1em;
+    width: 35%;
+    min-width: 70px;
+    white-space: nowrap;
+    height: 16px;
+    font-size: 12px;
+    color: #bbb;
+}
+.attrs-table .value-box{
+    flex: 1 auto;
+}
+#input-set-fps{
+    width: 40px!important;
+}
+
+ .input{
+
+    background: #fff;
+    transition: padding-right .15s,margin-right .15s;
+    color: #333;
+    font-size: 14px;
+    position: relative;
+    box-sizing: border-box;
+    flex-direction: row;
+    width: auto;
+    margin: 0 0.25em 0 0;
+    outline: 0;
+    cursor: default;
+    overflow: hidden;
+    border-radius: 3px;
+    border: 1px solid #bbb;
+    padding: 0 0 0 0.5em;
+    background: #ccc;
+}
+.attrs-table .node-name{
+   flex: 1 auto;
+    overflow: hidden;
+}
+
+/* override default */
+.v-treeview--dense .v-treeview-node__root{
+    min-height: 16px!important;
+}
+v-treeview-node__root v-treeview-node--active primary--text  .v-icon{
+    font-size: 16px!important;
+}
+.v-treeview-node__label{
+    color: #7d237c;
+    font-size: 14px!important;
+    font-weight: bold;
+}

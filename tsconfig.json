@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    // 将每个文件作为单独的模块
+    "isolatedModules": false,
+    // 启用装饰器
+    "experimentalDecorators": true,
+    // 启用设计类型元数据（用于反射）
+    "emitDecoratorMetadata": true,
+    "noImplicitThis": true,
+    "target": "esnext",
+    "module": "commonjs",
+//    "module": "es2015",
+//    "jsx": "react",
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "declaration": false,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["./src/renderer/*"]
+    },
+
+    "plugins": [{ "name": "typescript-styled-plugin" }]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "files": [
+    "src/vue-shims.d.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
