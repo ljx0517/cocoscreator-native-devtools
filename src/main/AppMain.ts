@@ -1,6 +1,4 @@
-import { app, Menu } from 'electron'
-// import { initializeIpcEvents, releaseIpcEvents } from './IPCEvents'
-import { createMainMenu } from './MainMenu'
+import { app } from 'electron'
 import { createMainWindow } from './WindowManager'
 
 app.name = 'CocosCreator native debugger Windows'
@@ -11,8 +9,6 @@ app.on('ready', () => {
   /// #endif
 
   createMainWindow()
-  // createDebugWindow()
-  createMainMenu()
 })
 
 /// #if env == 'DEBUG'

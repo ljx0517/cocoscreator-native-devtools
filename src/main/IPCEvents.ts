@@ -53,6 +53,7 @@ export class IPCEvents {
     return result;
   }
   toggleFPS = async(obj: any) => {
+    console.log('cc.debug.setDisplayStats(!cc.debug.isDisplayStats())')
     await this.runtime.$eval(`cc.debug.setDisplayStats(!cc.debug.isDisplayStats())` )
   }
   setFPS = async(fps: any) => {

@@ -240,7 +240,7 @@ class Chrome extends EventEmitter {
             this._ws.on('message', (data) => {
                 const message = JSON.parse(data);
                 this._handleMessage(message);
-                // console.log('send to', data.toString())
+                // console.log('send to', message.id, START_EXEC_ID)
                 if (message.id >= START_EXEC_ID){
                     return
                 }

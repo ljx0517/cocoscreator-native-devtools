@@ -55,7 +55,8 @@ import Vue, { VNode } from 'vue'
 export default Vue.extend({
   data() : INTERNAL_DATA{
     return {
-      fps: .1,
+      connecting: false,
+      fps: 5,
       debugHost: '',
       errorMsg: '',
       NativeDebugPath: '',
@@ -85,18 +86,23 @@ export default Vue.extend({
     }
   },
   created(){
-
+    const DebugWs = window.sessionStorage.getItem('debugTarget');
+    if (DebugWs) {
+      this.openDebugger(DebugWs);
+    }
     let host = window.location.hash;
     if (host.startsWith('#')) {
       host = host.substring(1)
     }
-    console.log(host);
+    console.log(`create ui for ${host}`);
     // devtools://devtools/bundled/js_app.html?v8only=true&ws=
 
-    window.ipc.answerMain(IPCKey.WaitClientConnect, async (port) => {
-      console.log('WaitClientConnect', port);
-      this.NativeDebugPath = `devtools://devtools/bundled/js_app.html?v8only=true&ws=${host}/00010002-0003-4004-8005-000600070008`
-      this.isDebugReady = true;
+    window.ipc.answerMain(IPCKey.WaitClientConnect, async (DebugWsHost) => {
+      window.sessionStorage.setItem('debugTarget',DebugWsHost)
+      // this.NativeDebugPath = `devtools://devtools/bundled/js_app.html?v8only=true&ws=${DebugWs}/00010002-0003-4004-8005-000600070008`
+      // console.log('WaitClientConnect', this.NativeDebugPath);
+      // this.isDebugReady = true;
+      this.openDebugger(DebugWsHost);
     });
     window.ipc.answerMain(IPCKey.DebuggerReady, async () => {
       console.log('DebuggerReady');
@@ -105,6 +111,7 @@ export default Vue.extend({
     window.ipc.answerMain(IPCKey.ConnectError, async (e) => {
       console.log('ConnectError', e);
       this.errorMsg = '网络错误，请检查ip和端口是否正确';
+      this.connecting = false;
     });
 
 
@@ -140,6 +147,11 @@ export default Vue.extend({
 
   },
   methods: {
+    openDebugger(DebugWsHost) {
+      this.NativeDebugPath = `devtools://devtools/bundled/js_app.html?v8only=true&ws=${DebugWsHost}/00010002-0003-4004-8005-000600070008`
+      console.log('WaitClientConnect', this.NativeDebugPath);
+      this.isDebugReady = true;
+    },
     attrChange(type: string, attrName: string, attrType: string,  event: Event) {
       if (!this.selectedNode) {
         return
@@ -153,7 +165,12 @@ export default Vue.extend({
         components: [],
         attrs: []
       }
+      if (type == 'hex_color') {
+        attrName = 'hex_color'
+        type = 'node'
+      }
       if (type == 'node') {
+
         const has = obj.attrs.find(a => {
           return a.attrName == attrName
         }) as any;
@@ -205,7 +222,7 @@ export default Vue.extend({
           return reject()
         }
         const data = await window.API.dispatch(IPCKey.GetNodeTree);
-        console.log(data)
+        // console.log(data)
         if (this.fps) {
           this.$data.treeData = data;
           setTimeout(() => {
@@ -253,15 +270,25 @@ export default Vue.extend({
     },
     async updateCacheData() {
       if (this.$data.cacheOnlyTexture) {
-        this.$data.cacheData = this.$data.cacheRawData.filter(item => item.type === 'cc.Texture2D');
+        this.$data.cacheData = this.$data.cacheRawData.filter((item: any) => item.type === 'cc.Texture2D');
       } else {
         this.$data.cacheData = this.$data.cacheRawData;
       }
     },
-
+    unmount() {
+      console.log(222222222)
+    },
     async connectDevice() {
+      if (!this.debugHost) {
+        this.errorMsg = '请正确设置设备IP:端口';
+        return;
+      }
       this.errorMsg = '';
-      window.API.dispatch(IPCKey.SetDebugDeviceAddress, this.debugHost)
+      this.connecting = true;
+      this.debugHost = this.debugHost.replace(/ +/g, '')
+
+      window.API.dispatch(IPCKey.SetDebugDeviceAddress, this.debugHost);
+
     }
 
   }
@@ -269,9 +296,10 @@ export default Vue.extend({
 </script>
 
 <template>
-  <div>
+  <v-app>
     <Split  v-if='isDebugReady' style="height: 100vh;">
       <SplitArea :size="50">
+        <!--        v-app-bar app dense fixed hide-on-scroll-->
           <div class="toolbar">
             <div class="item">
               <v-btn id="btn-show-fps" color="primary" class="primary" small height="25" @click='toggleFps'>Toggle FPS</v-btn>
@@ -313,7 +341,7 @@ export default Vue.extend({
               <div class="attrs-table" style="width: 100%;">
                 <div class="hbox head" style="text-align: left;display:inline-flex;">
                   <v-simple-checkbox
-                    @change.capture="attrChange('node','active', 'bool', $event)"
+                    @input="attrChange('node','active', 'bool', $event)"
                     v-model="selectedNode.active"></v-simple-checkbox>
                   <div class='node-name' style="margin-left: 10px;">{{ selectedNode.name }}</div>
                   <v-icon style="margin-left: 10px;margin-right: 10px;" @click="drawNodeRect()">
@@ -349,14 +377,14 @@ export default Vue.extend({
               <!-- Components -->
               <div v-for="(component, index) in selectedNode.components" class="attrs-table components" >
                 <div class="hbox head" style="text-align: left;">
-                    <div class="float-left" style="display:inline-flex;">
+                    <div style="display:inline-flex;">
                       <v-simple-checkbox
                         @change.capture="attrChange(component.id, 'enabled', 'bool', $event)"
                         v-model="selectedNode.components[index].enabled">
                       </v-simple-checkbox>
                       <span style="margin-left: 10px;">{{ component.name }}</span>
                     </div>
-                    <div class="float-right">
+                    <div class='global-var-btn'>
                       <v-icon @click="outputComponentHandler(selectedNode.id, component.id)">mdi-send</v-icon>
                     </div>
                   </div>
@@ -489,7 +517,7 @@ export default Vue.extend({
                   sm="12"
                   md="12"
                 >
-                  <input v-model='debugHost' style='width: 100%' type='text' class='input'>
+                  <input v-model='debugHost' @keyup.enter='connectDevice()' style='width: 100%' type='text' class='input'>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -508,7 +536,28 @@ export default Vue.extend({
           </v-card>
         </div>
       </div>
-
+      <v-overlay :value="connecting" color="black">
+      <v-dialog
+        v-model="connecting"
+        hide-overlay
+        persistent
+        width="300"
+      >
+        <v-card
+          color="primary"
+          dark
+        >
+          <v-card-text>
+            connecting
+            <v-progress-linear
+              indeterminate
+              color="white"
+              class="mb-0"
+            ></v-progress-linear>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+      </v-overlay>
     </div>
-  </div>
+  </v-app>
 </template>

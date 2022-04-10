@@ -130,6 +130,7 @@ export default (env: any, argv: Configuration) => {
       new CopyPlugin({
         patterns: [
           { from: "./src/inject.js", to: "inject.js" },
+          { from: "./index.html", to: "index.html" },
           // { from: "./src/attr_config.json", to: "attr_config.json" },
           // { from: "./src/common/remote-debugger-interface", to: "remote-debugger-interface" },
           // { from: "./src/renderer/assets/css", to: "css" },

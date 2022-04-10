@@ -15,16 +15,17 @@ import { IPCEvents } from './IPCEvents'
  * Create a window and add it to the list.
  */
 let TreeWindow: BrowserWindow;
-let debugWindow: BrowserWindow;
+let MiddleManWSServer: any;
 let cocosContext: any;
 let runtime: MiddleManRuntime;
 type WS = WebSocket & EventEmitter
 let DebugWs:string = '';
-let DebugHost = '0.0.0.0';
+let DebugHost = '127.0.0.1';
 let DebugPort = 8014;
 let DebugWsPath = '/00010002-0003-4004-8005-000600070008'
 const DebugServer = http.createServer()
 let IPC_EVENT: IPCEvents|null = null;
+let isInitStage = true;
 export const createMainWindow = () => {
   portfinder.getPort(function (err: any, port: number) {
     DebugPort = port;
@@ -36,48 +37,79 @@ export const createMainWindow = () => {
     DebugWs = `${DebugHost}:${DebugPort}`
     TreeWindow = createNewWindow(`file://${path.join(__dirname, 'index.html')}#${DebugWs}`);
     DebugServer.listen(port);
+    DebugServer.on('upgrade', function (request, socket, head) {
+      console.log(`DebugServer upgrade`)
+      // MiddleManWSServer.handleUpgrade(request, socket, head, function (ws) {
+      //   MiddleManWSServer.emit('connection', ws, request);
+      // })
+      // setTimeout(() => {
+      //   // @ts-ignore
+      //   IPC_EVENT.emit(IPCKey.WaitClientConnect, DebugWs)
+      //   console.log(`ipc create finish`)
+      // }, 2000)
+    })
     //
     // `port` is guaranteed to be a free port
     // in this scope.
     //
   });
 }
-function createDebugServer(h: string) {
-  const u = new URL(`ws://${h}`);
-  console.log(u)
-  CDP({
-    local: true, host: u.hostname, port: u.port ,target: DebugWsPath
-  }).then(async (middleMan: typeof Chrome) => {
-    console.log(1111111111)
-    const wss = new WebSocketServer({ server: DebugServer });
-    const runtime = new MiddleManRuntime(middleMan.Runtime);
+function initMiddleServer(middleMan: typeof Chrome) {
 
-    IPC_EVENT = new IPCEvents(runtime, TreeWindow);
-    IPC_EVENT.initialize();
-    IPC_EVENT.emit(IPCKey.WaitClientConnect, h)
+  const wss = new WebSocketServer({ server: DebugServer });
+  const runtime = new MiddleManRuntime(middleMan.Runtime);
+  IPC_EVENT = new IPCEvents(runtime, TreeWindow);
+  IPC_EVENT.initialize();
+  setTimeout(() => {
+    // @ts-ignore
+    IPC_EVENT.emit(IPCKey.WaitClientConnect, DebugWs)
+    console.log(`ipc create finish`)
+  }, 2000)
 
-    wss.on('connection', async function connection(clientWs: WS) {
-      middleMan.setClientWs(clientWs);
+
+  wss.on('connection', async function connection(clientWs: WS) {
+    console.log('client connect');
+    middleMan.setClientWs(clientWs);
+    if (isInitStage) {
+      isInitStage = false;
       await middleMan.Runtime.enable()
       await runtime.injectScript();
       middleMan.on('disconnect', () => {
+        console.log('client disconnect');
         wss.clients.forEach(function each(client: WS) {
           client.close()
         });
       })
-      clientWs.on('message', function message(data, flags) {
-        console.log('forward to Server:', data.toString());
-        middleMan.sendRawToServer( data.toString(), flags)
-      });
-      clientWs.on('close', ()=>{
-        console.log('client close')
-        middleMan.close()
-      });
-      if (IPC_EVENT) {
-        IPC_EVENT.emit(IPCKey.DebuggerReady)
-      }
-    });
+    }
 
+    clientWs.on('message', function message(data, flags) {
+      console.log('forward to Server:', data.toString());
+      middleMan.sendRawToServer( data.toString(), flags)
+    });
+    clientWs.on('close', ()=>{
+      console.log('client close')
+      // middleMan.close()
+    });
+    if (IPC_EVENT) {
+      IPC_EVENT.emit(IPCKey.DebuggerReady)
+    }
+  });
+  MiddleManWSServer = wss
+}
+function createDebugServer(h: string) {
+  const u = new URL(`ws://${h}`);
+  // console.log(u,  !!MiddleManWSServer, DebugWs )
+  // if (MiddleManWSServer) {
+  //   // @ts-ignore
+  //   IPC_EVENT.emit(IPCKey.WaitClientConnect, DebugWs)
+  //   return
+  // }
+  CDP({
+    local: true, host: u.hostname, port: u.port ,target: DebugWsPath
+  }).then(async (middleMan: typeof Chrome) => {
+    console.log(`dev server is connected`);
+    console.log(`create middle dev server: ${DebugWs}`);
+    initMiddleServer(middleMan)
   }).catch((e: any) => {
 
     ipc.callRenderer(TreeWindow, IPCKey.ConnectError, e);

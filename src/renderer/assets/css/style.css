@@ -15,7 +15,12 @@ body {
     padding: 0px;
     border: 0px;
     margin: 0px;
+    overflow: hidden;
 }
+::-webkit-scrollbar {         display: none;       }
+
+
+
 
 /* Remove spin of input type number */
 input::-webkit-outer-spin-button,
@@ -155,7 +160,10 @@ body, canvas, div {
 #input-set-fps{
     width: 40px!important;
 }
-
+.global-var-btn{
+    position: absolute;
+    right: 0;
+}
  .input{
 
     background: #fff;

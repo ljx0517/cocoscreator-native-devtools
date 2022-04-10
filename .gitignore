@@ -1,11 +1,15 @@
 node_modules/
 dist/
 esdoc/
+.history/
 
-*.
 *.log
 *.map
-*.d.ts
 package-lock.json
 src/assets/*.js
+src/assets/*.css
+src/assets/*.ttf
+src/assets/*.woff
+src/assets/*.woff2
+src/assets/*.eot
 !.gitignore

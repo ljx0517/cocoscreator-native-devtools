@@ -223,6 +223,14 @@ if (!globalThis.___inject___) {
     let graphics = bgNode.addComponent(cc.Graphics);
     let scene = cc.director.getScene();
     scene.addChild(bgNode);
+    const bgLblNode = new cc.Node();
+    const lbl = bgLblNode.addComponent(cc.Label);
+
+    bgLblNode.parent = bgNode;
+
+    // bgLblNode.x = Math.abs(bgNode.width / 2 - bgLblNode.width / 2)
+    // bgLblNode.y = -Math.abs(bgNode.height / 2 - bgLblNode.height / 2)
+
     bgNode.position = rect.center;
     bgNode.group = target.group;
     bgNode.zIndex = cc.macro.MAX_ZINDEX;
@@ -238,11 +246,12 @@ if (!globalThis.___inject___) {
       graphics.fillColor = new cc.Color().fromHEX('#E91E6390');
       graphics.fill();
     }
+    lbl.string = `${Math.round(bgNode.width)} x ${Math.round(bgNode.height)}`
     setTimeout(() => {
       if (cc.isValid(bgNode)) {
         bgNode.destroy();
       }
-    }, 2000);
+    }, 20000);
   }
 
   function updateNodeAttrs(args) {

@@ -1,24 +1,21 @@
 {
-  "name": "electron-multiple-windows",
-  "description": "Electron Multiple Windows.",
-  "version": "2.0.0",
-  "author": "akabeko",
+  "name": "cocoscreator-native-devtools",
+  "description": "Cocoscreator Native Devtools",
+  "version": "1.0.0",
+  "author": "ljx0517",
   "license": "MIT",
   "private": true,
   "main": "main.js",
   "keywords": [
     "Electron",
-    "MultipleWindows"
+    "Cocoscreator Native devtools"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akabekobeko/examples-electron.git"
+    "url": "git+https://github.com/ljx0517/cocoscreator-native-devtools.git"
   },
   "config": {
-    "app": "MultipleWindows",
-    "appCompanyName": "Company",
-    "appLegalCopyright": "Copylight (C) USERNAME, All right reserved.",
-    "appFileDescription": "Electron application"
+    "app": "CocosCreatorNativeDevtools"
   },
   "scripts": {
     "start": "npm run watch",
@@ -56,6 +53,7 @@
     "lodash": "^4.17.21",
     "portfinder": "^1.0.28",
     "styled-components": "^5.3.3",
+    "typeface-roboto": "^1.1.13",
     "vue": "^2.6.14",
     "vue-class-component": "^7.2.6",
     "vue-loader": "^15.9.8",
