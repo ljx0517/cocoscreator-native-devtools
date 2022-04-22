@@ -26,6 +26,7 @@ type UPDATE_ATTR = {
   attrValue: any;
 }
 type INTERNAL_DATA = {
+  connecting: boolean,
   errorMsg: string,
   debugHost: string;
   isDebugReady: boolean;
@@ -89,6 +90,8 @@ export default Vue.extend({
     const DebugWs = window.sessionStorage.getItem('debugTarget');
     if (DebugWs) {
       this.openDebugger(DebugWs);
+      // this.debugHost = DebugWs;
+      // this.connectDevice();
     }
     let host = window.location.hash;
     if (host.startsWith('#')) {
@@ -98,10 +101,8 @@ export default Vue.extend({
     // devtools://devtools/bundled/js_app.html?v8only=true&ws=
 
     window.ipc.answerMain(IPCKey.WaitClientConnect, async (DebugWsHost) => {
+      console.log('debugTarget',DebugWsHost);
       window.sessionStorage.setItem('debugTarget',DebugWsHost)
-      // this.NativeDebugPath = `devtools://devtools/bundled/js_app.html?v8only=true&ws=${DebugWs}/00010002-0003-4004-8005-000600070008`
-      // console.log('WaitClientConnect', this.NativeDebugPath);
-      // this.isDebugReady = true;
       this.openDebugger(DebugWsHost);
     });
     window.ipc.answerMain(IPCKey.DebuggerReady, async () => {
@@ -147,7 +148,7 @@ export default Vue.extend({
 
   },
   methods: {
-    openDebugger(DebugWsHost) {
+    openDebugger(DebugWsHost: string) {
       this.NativeDebugPath = `devtools://devtools/bundled/js_app.html?v8only=true&ws=${DebugWsHost}/00010002-0003-4004-8005-000600070008`
       console.log('WaitClientConnect', this.NativeDebugPath);
       this.isDebugReady = true;
@@ -486,7 +487,6 @@ export default Vue.extend({
       </SplitArea>
       <SplitArea :size="50">
         <webview id="debugger"
-
                  webpreferences="allowRunningInsecureContent, webSecurity=no"
                  disablewebsecurity
                  :src=NativeDebugPath

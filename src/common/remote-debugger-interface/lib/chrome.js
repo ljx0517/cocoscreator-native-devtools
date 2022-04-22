@@ -77,6 +77,8 @@ class Chrome extends EventEmitter {
         this._ws.send(message, flags)
     }
     setClientWs(clientWs){
+        this._callbacks = {};
+        this._nextCommandId = START_EXEC_ID;
         this._clientWs = clientWs;
     }
     send(method, params, sessionId, callback) {

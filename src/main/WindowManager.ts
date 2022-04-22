@@ -55,8 +55,10 @@ export const createMainWindow = () => {
   });
 }
 function initMiddleServer(middleMan: typeof Chrome) {
+  if(!MiddleManWSServer) {
+    MiddleManWSServer = new WebSocketServer({ server: DebugServer });
+  }
 
-  const wss = new WebSocketServer({ server: DebugServer });
   const runtime = new MiddleManRuntime(middleMan.Runtime);
   IPC_EVENT = new IPCEvents(runtime, TreeWindow);
   IPC_EVENT.initialize();
@@ -67,8 +69,9 @@ function initMiddleServer(middleMan: typeof Chrome) {
   }, 2000)
 
 
-  wss.on('connection', async function connection(clientWs: WS) {
+  MiddleManWSServer.on('connection', async function connection(clientWs: WS) {
     console.log('client connect');
+
     middleMan.setClientWs(clientWs);
     if (isInitStage) {
       isInitStage = false;
@@ -76,7 +79,7 @@ function initMiddleServer(middleMan: typeof Chrome) {
       await runtime.injectScript();
       middleMan.on('disconnect', () => {
         console.log('client disconnect');
-        wss.clients.forEach(function each(client: WS) {
+        MiddleManWSServer.clients.forEach(function each(client: WS) {
           client.close()
         });
       })
@@ -90,11 +93,13 @@ function initMiddleServer(middleMan: typeof Chrome) {
       console.log('client close')
       // middleMan.close()
     });
+    clientWs.on('open', ()=>{
+      console.log('client open')
+    });
     if (IPC_EVENT) {
       IPC_EVENT.emit(IPCKey.DebuggerReady)
     }
   });
-  MiddleManWSServer = wss
 }
 function createDebugServer(h: string) {
   const u = new URL(`ws://${h}`);
@@ -104,7 +109,7 @@ function createDebugServer(h: string) {
   //   IPC_EVENT.emit(IPCKey.WaitClientConnect, DebugWs)
   //   return
   // }
-  CDP({
+  const cdp = CDP({
     local: true, host: u.hostname, port: u.port ,target: DebugWsPath
   }).then(async (middleMan: typeof Chrome) => {
     console.log(`dev server is connected`);
@@ -115,6 +120,7 @@ function createDebugServer(h: string) {
     ipc.callRenderer(TreeWindow, IPCKey.ConnectError, e);
     console.log(22222222, e)
   })
+
 }
 export const createNewWindow = (url: string) => {
   // const filePath = path.join(__dirname, 'index.html');
